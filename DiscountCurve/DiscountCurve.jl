@@ -44,7 +44,7 @@ export TSdef
 
 function TSdef(testDate, tdLibor, tdSwap, freq, interpolationMethod)
     #read config
-    dayCount = 365
+    dayCount = 360
     calender = :UKSettlement
     #freq = :SemiAnnually
     FixValueGap = Day(0)

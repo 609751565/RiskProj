@@ -19,9 +19,10 @@ import .DiscountCurve
 ## 0. company info
 ExchangeID = 15
 CompanyID = 27153
-companyInfo = DataFrame(ExchangeID = ExchangeID, U3_ID = [CompanyID])
 RecoveryRate = 0.4
-historicalRiskfactors = CSV.read("./inputDataFromCRI/historicalRiskfactors.csv") |>df->@where(df,:Date .>= Date(2005,01,01))
+CompanyName = "Boeing"
+#historicalRiskfactors = CSV.read("./inputDataFromCRI/historicalRiskfactors.csv") |>df->@where(df,:Date .>= Date(2000,01,01))
+historicalRiskfactors = CSV.read("./inputDataFromCRI/historicalRiskfactors_$CompanyName.csv") |>df->@where(df,:Date .>= Date(2000,01,01))
 
 ## 1.Setup
 ## 1.1 Prepare Libor-Swap data
@@ -59,7 +60,8 @@ for testDate in historicalRiskfactors.Date
     discountCurve.LocalAvgRate = (360 ./ discountCurveRaw.ACT) .* log.(1 .+ discountCurveRaw.ZR .* discountCurveRaw.ACT ./ 360)
     #get instaneous forward rate
     discountCurve.InstAnnualRate = getInstAnnualRate(discountCurve)
-    #plot(discountCurve.Date,discountCurve.LocalAvgRate)
+    # plot(discountCurve.Date,discountCurve.LocalAvgRate,label = "DiscountCurve")
+
 
     ## 1.4 get intensity
     # we use the parameter calibrated by CRI in 2019.12
@@ -78,7 +80,8 @@ for testDate in historicalRiskfactors.Date
     cdsRateAppend = DataFrame(Date = CDSdate, CDS = as[1])
     global CDSrate = isempty(CDSrate) ? cdsRateAppend : vcat(CDSrate, cdsRateAppend)
 end
-
+#CDSrate = CSV.read(raw"/Users/chihming/Google Drive/RiskProj/output/AS.csv")
+CSV.write("/Users/chihming/Google Drive/RiskProj/output/AS_$CompanyName.csv",CDSrate)
 plot(CDSrate.Date,CDSrate.CDS)
 
 function getInstAnnualRate(rateDF::DataFrame)
